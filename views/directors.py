@@ -1,20 +1,32 @@
 # здесь контроллеры/хендлеры/представления для обработки запросов (flask ручки). сюда импортируются сервисы из пакета service
 
 from flask_restx import Resource, Namespace
+from models import Director, DirectorSchema
+
 
 director_ns = Namespace('directors')
 
 
 @director_ns.route('/')
-class DirectorView(Resource):
+class DirectorsView(Resource):
     def get(self):
-        return "", 200
+        directors = Director.query.all()
+        directors_schema = DirectorSchema()
+        if directors:
+            return directors_schema.dump(directors), 200
+        else:
+            return "Список режиссеров - пуст"
 
 
 @director_ns.route('/<int:gid>')
 class DirectorView(Resource):
     def get(self, gid):
-        return gid, 200
+        director = Director.query.get(gid)
+        director_schema = DirectorSchema(many=True)
+        if director:
+            return director_schema.dump(director), 200
+        else:
+            return f"Режиссера с id - {gid} нет."
 
 
 
